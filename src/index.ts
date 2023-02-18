@@ -11,6 +11,8 @@ function isPackageChanged(packagePath: string): boolean {
   (context.payload as PushEvent)
     .commits
     .forEach((commit: Commit) => {
+      console.log(commit);
+      
       changedFiles.push(...commit.modified);
     });
   console.log(changedFiles);
