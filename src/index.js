@@ -8,7 +8,13 @@ async function run() {
     const packageJsonPath = join(process.cwd(), 'package.json');
     const packageJson = JSON.parse(readFileSync(packageJsonPath));
 
-    const changedFiles = context.payload.head_commit.modified.filter(file => {
+    const modified = context.payload.head_commit.modified;
+    console.log(modified);
+    if (!modified) {
+      console.log('No files was modified during commit (what?)');
+      return;
+    }
+    const changedFiles = modified.filter(file => {
       return file === 'package.json';
     });
 
