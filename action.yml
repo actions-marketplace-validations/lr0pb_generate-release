@@ -1,0 +1,11 @@
+name: 'Automaticly generate release'
+description: '🚀 Generate release as you update files in your project'
+author: 'lr0pb'
+
+branding:
+  icon: tag
+  color: gray-dark
+
+runs:
+  using: "node16"
+  main: "src/index.js"
