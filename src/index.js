@@ -5,7 +5,7 @@ import { readFileSync } from 'fs';
 function isPackageChanged(packagePath) {
   const changedFiles = context.payload.commits
     .reduce((files, commit) => {
-      return files.push(...commit.modified);
+      return files.concat(commit.modified);
     }, []);
   console.log(changedFiles);
 
