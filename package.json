@@ -1,6 +1,7 @@
 {
   "name": "generate-release",
   "version": "0.0.2",
+  "type": "module",
   "main": "src/index.js",
   "dependencies": {
     "@actions/core": "^1.10.0",
