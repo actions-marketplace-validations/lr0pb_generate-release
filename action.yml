@@ -6,6 +6,12 @@ branding:
   icon: tag
   color: gray-dark
 
+inputs:
+  package-path:
+    description: 'Path to package.json file'
+    required: false
+    default: '/package.json'
+
 runs:
   using: "node16"
   main: "dist/index.js"

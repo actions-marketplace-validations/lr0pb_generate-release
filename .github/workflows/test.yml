@@ -14,5 +14,3 @@ jobs:
 
       - name: Generate Release
         uses: ./ # Use the local path to your action
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
