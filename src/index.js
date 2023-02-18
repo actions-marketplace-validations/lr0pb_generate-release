@@ -4,11 +4,12 @@ import { readFileSync } from 'fs';
 import { join } from 'path';
 
 async function run() {
+  console.log('Hello world?');
   try {
     const packageJsonPath = join(process.cwd(), 'package.json');
     const packageJson = JSON.parse(readFileSync(packageJsonPath));
 
-    const modified = context.payload.head_commit.modified;
+    const modified = context.payload.head_commit.modified || [];
     console.log(modified);
     if (!modified) {
       console.log('No files was modified during commit (what?)');
@@ -40,6 +41,7 @@ async function run() {
       console.log('No changes to version in package.json. Skipping release.');
     }
   } catch (error) {
+    console.log(error);
     setFailed(error.message);
   }
 }
