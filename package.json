@@ -1,7 +1,7 @@
 {
   "name": "generate-release",
   "description": "🚀 Generate release based on updated files in commit",
-  "version" :"0.0.7",
+"version" :"0.0.7",
   "type": "module",
   "main": "dist/index.js",
   "scripts": {

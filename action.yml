@@ -9,7 +9,7 @@ branding:
 inputs:
   token:
     description: 'Your token to provide access to GitHub REST API, usually its secrets.GITHUB_TOKEN'
-    required: false
+    required: true
   track-file:
     description: 'Specifies what file use to track updates, package.json or changelog file'
     required: false
