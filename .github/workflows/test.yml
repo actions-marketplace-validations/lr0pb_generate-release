@@ -1,4 +1,4 @@
-name: Test generate Release
+name: Generate Release
 
 on:
   push:
@@ -13,6 +13,6 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Generate Release
-        uses: ./ # Use the local path to your action
+        uses: ./ # Use the local path to action
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
