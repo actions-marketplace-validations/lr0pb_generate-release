@@ -1,23 +1,38 @@
 import * as core from '@actions/core';
-import * as github from '@actions/github';
-import * as fs from 'fs';
-import * as path from 'path';
-import { PushEvent, Commit } from '@octokit/webhooks-definitions/schema';
+import { context, getOctokit } from '@actions/github';
+// import * as fs from 'fs';
+// import * as path from 'path';
 
-const context = github.context;
+async function getAllChangedFiles(): Promise<string[]> {
+  const octokit = getOctokit(
+    core.getInput('token', { required: true })
+  );
+  const { owner, repo } = context.repo;
+  const { before, after } = context.payload;
 
-function isPackageChanged(packagePath: string): boolean {
+  // Get the list of commits between the before and after commits
+  const { data: commitsData } = await octokit.rest.repos.compareCommits({
+    owner,
+    repo,
+    base: before,
+    head: after,
+  });
+
+  // Iterate over each commit and get the list of changed files
   const changedFiles: string[] = [];
-  (context.payload as PushEvent)
-    .commits
-    .forEach((commit: Commit) => {
-      console.log(commit);
-      
-      changedFiles.push(...commit.modified);
+  for (const commit of commitsData.commits) {
+    const { data: filesData } = await octokit.rest.repos.getCommit({
+      owner,
+      repo,
+      ref: commit.sha,
     });
-  console.log(changedFiles);
+    if (Array.isArray(filesData.files)) {
+      changedFiles.push(...filesData.files.map((file) => file.filename));
+    }
+  }
 
-  return changedFiles.includes(packagePath);
+  // Return the list of all changed files in the push
+  return changedFiles;
 }
 
 async function run() {
@@ -33,44 +48,22 @@ async function run() {
     const packagePath = core
       .getInput('package-path', { required: false })
       ?.replace(/^\//, '') || 'package.json';
-    const isChanged = isPackageChanged(packagePath);
 
-    if (!isChanged) {
-      console.log('No changes in package.json');
-      return;
-    }
+    // const diffUrl = `https://github.com/${context.repo.owner}/${context.repo.repo}/compare/${context.payload.before}...${context.payload.after}.diff`;
 
-    const packageJson = JSON.parse(
-      fs.readFileSync(path.join(basePath, packagePath), 'utf8')
-    );
-    console.log(packageJson);
-    
+    // const { data: diffContent } = await getOctokit(core.getInput('token', { required: true })).request({
+    //   method: 'GET',
+    //   url: diffUrl,
+    //   headers: { Accept: 'application/vnd.github.v3.diff' },
+    // });
+    // console.log(diffContent);
+    const resp = await getAllChangedFiles();
+    console.log(resp);
 
-    const newVersion = packageJson.version;
-
-    const diffUrl = `https://github.com/${context.repo.owner}/${context.repo.repo}/compare/${context.payload.before}...${context.payload.after}.diff`;
-
-    const octokit = github.getOctokit(core.getInput('token', { required: true }));
-    const diffContent = await octokit.request({
-      method: 'GET',
-      url: diffUrl
-    });
-    console.log(diffContent.data);
-
-    if (isVersionChanged(diffContent.data, newVersion)) {
-      console.log('Release happened!');
-      //core.setOutput('newVersion', newVersion);
-    } else {
-      console.log('No changes to version in package.json. Skipping release.');
-    }
   } catch (error: any) {
     console.log(error);
     core.setFailed(error.message);
   }
-}
-
-function isVersionChanged(diffContent: string, version: string) {
-  return diffContent.includes(`"version": "${version}"`);
 }
 
 run();
