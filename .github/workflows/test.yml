@@ -17,4 +17,4 @@ jobs:
       - name: Generate Release
         uses: ./ # Use the local path to action
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          changelog-path: '/test/CHANGELOG.md'

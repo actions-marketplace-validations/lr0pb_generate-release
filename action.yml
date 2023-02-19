@@ -1,5 +1,5 @@
-name: 'Automaticly generate release'
-description: '🚀 Generate release based on updated files in commit'
+name: 'Create Release'
+description: '🚀 Automatic release tag creation based on files updated in commit for JS/TS projects 🏷️'
 author: 'lr0pb'
 
 branding:
@@ -8,12 +8,20 @@ branding:
 
 inputs:
   token:
-    description: 'Your GITHUB_TOKEN'
-    required: true
+    description: 'Your token to provide access to GitHub REST API, usually its secrets.GITHUB_TOKEN'
+    required: false
+  track-file:
+    description: 'Specifies what file use to track updates, package.json or changelog file'
+    required: false
+    default: 'package'
   package-path:
-    description: 'Path to package.json file'
+    description: 'Path to package.json file tracked for updates'
     required: false
     default: '/package.json'
+  changelog-path:
+    description: 'Path to changelog file tracked for updates or used to provide release descriptions'
+    required: false
+    default: '/CHANGELOG.md'
 
 runs:
   using: "node16"
