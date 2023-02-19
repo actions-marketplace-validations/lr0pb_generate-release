@@ -8,7 +8,9 @@ interface ChangedFiles {
   patch?: string,
 }
 
-async function getAllChangedFiles(packagePath: string): Promise<ChangedFiles[]> {
+async function getAllChangedFiles(
+  packagePath: string
+): Promise<Record<string, ChangedFiles>> {
   const octokit = getOctokit(
     core.getInput('token', { required: true })
   );
@@ -24,7 +26,7 @@ async function getAllChangedFiles(packagePath: string): Promise<ChangedFiles[]> 
   });
 
   // Iterate over each commit and get the list of changed files
-  const changedFiles: ChangedFiles[] = [];
+  const changedFiles: Record<string, ChangedFiles> = {};
   for (const commit of commitsData.commits) {
     const { data: filesData } = await octokit.rest.repos.getCommit({
       owner,
@@ -32,17 +34,27 @@ async function getAllChangedFiles(packagePath: string): Promise<ChangedFiles[]> 
       ref: commit.sha,
     });
     if (Array.isArray(filesData.files)) {
-      changedFiles.push(...filesData.files.map((file): ChangedFiles => {
-        return {
+      filesData.files.forEach((file) => {
+        changedFiles[file.filename] = {
           fileName: file.filename,
           patch: file.filename === packagePath ? file.patch : undefined,
         };
-      }));
+      });
     }
   }
 
   // Return the list of all changed files in the push
   return changedFiles;
+}
+
+function getNewVersion(packageData: ChangedFiles): string | undefined {
+  const patch = packageData.patch;
+  if (!patch) return;
+  const isVersionUpdated = patch.includes('version');
+  console.log(`Is version updated: ${isVersionUpdated}`);
+  if (!isVersionUpdated) return;
+  const match = patch.match(/^\+.*"version": "(.*)",\n/);
+  return match ? match[1] : undefined;
 }
 
 async function run() {
@@ -67,8 +79,12 @@ async function run() {
     //   headers: { Accept: 'application/vnd.github.v3.diff' },
     // });
     // console.log(diffContent);
-    const resp = await getAllChangedFiles(packagePath);
-    console.log(resp);
+    const changedFiles = await getAllChangedFiles(packagePath);
+    console.log(changedFiles);
+    if (changedFiles[packagePath]) {
+      const newVersion = getNewVersion(changedFiles[packagePath]);
+      console.log(`New version: ${newVersion}`);
+    }
 
   } catch (error: any) {
     console.log(error);
