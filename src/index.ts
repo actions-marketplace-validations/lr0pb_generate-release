@@ -3,7 +3,12 @@ import { context, getOctokit } from '@actions/github';
 // import * as fs from 'fs';
 // import * as path from 'path';
 
-async function getAllChangedFiles(): Promise<string[]> {
+interface ChangedFiles {
+  fileName: string,
+  patch?: string,
+}
+
+async function getAllChangedFiles(packagePath: string): Promise<ChangedFiles[]> {
   const octokit = getOctokit(
     core.getInput('token', { required: true })
   );
@@ -19,7 +24,7 @@ async function getAllChangedFiles(): Promise<string[]> {
   });
 
   // Iterate over each commit and get the list of changed files
-  const changedFiles: string[] = [];
+  const changedFiles: ChangedFiles[] = [];
   for (const commit of commitsData.commits) {
     const { data: filesData } = await octokit.rest.repos.getCommit({
       owner,
@@ -27,7 +32,12 @@ async function getAllChangedFiles(): Promise<string[]> {
       ref: commit.sha,
     });
     if (Array.isArray(filesData.files)) {
-      changedFiles.push(...filesData.files.map((file) => file.filename));
+      changedFiles.push(...filesData.files.map((file): ChangedFiles => {
+        return {
+          fileName: file.filename,
+          patch: file.filename === packagePath ? file.patch : undefined,
+        };
+      }));
     }
   }
 
@@ -57,7 +67,7 @@ async function run() {
     //   headers: { Accept: 'application/vnd.github.v3.diff' },
     // });
     // console.log(diffContent);
-    const resp = await getAllChangedFiles();
+    const resp = await getAllChangedFiles(packagePath);
     console.log(resp);
 
   } catch (error: any) {
