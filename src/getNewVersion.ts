@@ -1,3 +1,4 @@
+import { vars } from './constants';
 import { ChangedFile } from './getChangedFiles';
 
 export function getNewVersion(packageData: ChangedFile): string | undefined {
@@ -5,17 +6,18 @@ export function getNewVersion(packageData: ChangedFile): string | undefined {
   if (!patch) return;
 
   const isVersionUpdated = patch.includes('version');
-  console.log(`Is version prop line updated: ${isVersionUpdated}`);
+  // console.log(`Is version prop line updated: ${isVersionUpdated}`);
   if (!isVersionUpdated) return;
 
-  const match = (symbol: string) => {
-    const pattern = `^\\${symbol}.*"version"\\s*:\\s*"(.*)"`;
+  const findVersion = (symbol: string) => {
+    const pattern = `^\\${symbol}.*"version"\\s*:\\s*"(${vars.versionRegex})"`;
     return patch.match(new RegExp(pattern, 'm'));
   };
-  const oldMatch = match('-');
-  const newMatch = match('+');
+  const oldLine = findVersion('-');
+  const newLine = findVersion('+');
 
-  return oldMatch && newMatch
-  ? (oldMatch[1] !== newMatch[1] ? newMatch[1] : undefined)
-  : undefined;
+  return oldLine && newLine
+  ? (oldLine[1] !== newLine[1] ? newLine[1] : undefined)
+  : !oldLine && newLine
+  ? newLine[1] : undefined;
 }

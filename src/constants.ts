@@ -9,4 +9,5 @@ export const octobase = {
 export const vars = {
   token: core.getInput('token', { required: true }),
   basePath: process.env.GITHUB_WORKSPACE as string,
+  versionRegex: `\\d+\\.\\d+\\.\\d+`,
 }
