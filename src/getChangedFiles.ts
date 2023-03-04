@@ -13,10 +13,9 @@ export async function getChangedFiles(
   const { before, after } = context.payload;
 
   // Get the list of commits between the before and after commits
-  const { data: commitsData } = await octokit.rest.repos.compareCommits({
+  const { data: commitsData } = await octokit.rest.repos.compareCommitsWithBasehead({
     ...octobase,
-    base: before,
-    head: after,
+    basehead: `${before}${after}`,
   });
 
   // Iterate over each commit and get the list of changed files

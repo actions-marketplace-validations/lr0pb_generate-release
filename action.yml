@@ -1,5 +1,5 @@
-name: 'Create Release'
-description: '🚀 Automatic release tag creation based on files updated in commit for JS/TS projects 🏷️'
+name: 'Automatic Create Release'
+description: '🚀 Automatically create release tag based on files updated in commit for JS/TS projects 🏷️'
 author: 'lr0pb'
 
 branding:
@@ -11,17 +11,21 @@ inputs:
     description: 'Your token to provide access to GitHub REST API, usually its secrets.GITHUB_TOKEN'
     required: true
   track-file:
-    description: 'Specifies what file use to track updates, package.json or changelog file'
+    description: 'Path to file used to track updates: some package.json file'
     required: false
-    default: 'package'
-  package-path:
-    description: 'Path to package.json file tracked for updates'
+    default: 'package.json'
+  notes-source:
+    description: 'Source type for release notes: changelog | auto'
     required: false
-    default: '/package.json'
-  changelog-path:
-    description: 'Path to changelog file tracked for updates or used to provide release descriptions'
+    default: 'changelog'
+  notes-file:
+    description: 'Path to changelog file used to provide release descriptions'
     required: false
-    default: '/CHANGELOG.md'
+    default: 'CHANGELOG.md'
+  tag-pattern:
+    description: 'Custom tag pattern for release title'
+    required: false
+    default: 'v{major}.{minor}.{patch}'
 
 runs:
   using: "node16"

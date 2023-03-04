@@ -1,3 +1,4 @@
+import * as core from '@actions/core';
 import * as fs from 'fs';
 import * as path from 'path';
 import { vars } from './constants';
@@ -5,15 +6,17 @@ import { vars } from './constants';
 export const defaultDescription = 'No description 💭';
 
 export function getReleaseDescription(
-  version: string, changelogPath: string
+  version: string
 ): string {
+  const changelogPath = core
+    .getInput('notes-file', { required: false })
+    .replace(/^\//, '');
   const changelog = fs.readFileSync(
     path.join(vars.basePath, changelogPath), 'utf8'
   );
 
   const findDesc = (descEndRegex: string) => {
     const regex = new RegExp(
-      //(${descEndRegex})
       `^#+\\s.*${version}.*?\\n+((.*\\n)*)(${descEndRegex})`, 'gm'
     );
     return regex.exec(changelog);
@@ -23,7 +26,6 @@ export function getReleaseDescription(
   const endOfFile = `[\r\n]?$(?![\r\n])`;
 
   let description = findDesc(nextVersion);
-  console.log(description);
 
   if (!description) {
     description = findDesc(endOfFile);

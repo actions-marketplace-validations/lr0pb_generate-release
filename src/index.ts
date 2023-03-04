@@ -16,12 +16,8 @@ async function run() {
     }
 
     const packagePath = core
-      .getInput('package-path', { required: false })
-      ?.replace(/^\//, '') || 'package.json';
-
-    const changelogPath = core
-      .getInput('changelog-path', { required: false })
-      ?.replace(/^\//, '') || 'CHANGELOG.md';
+      .getInput('track-file', { required: false })
+      .replace(/^\//, '');
 
     const changedFiles = await getChangedFiles(packagePath);
     console.log(changedFiles);
@@ -29,7 +25,7 @@ async function run() {
       const newVersion = getNewVersion(changedFiles[packagePath]);
       console.log(`New version: ${newVersion}`);
       if (newVersion) {
-        await createRelease(newVersion, changelogPath);
+        await createRelease(newVersion);
       }
     }
 

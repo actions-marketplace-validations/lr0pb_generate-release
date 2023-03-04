@@ -15,7 +15,6 @@ import notes7 from './testReleaseDescriptions/7-no-desc-for-version';
 import react from './testReleaseDescriptions/react';
 import capacitor from './testReleaseDescriptions/capacitor';
 
-// Mock octobase and vars constants
 jest.mock('../constants', () => ({
   vars: {
     basePath: path.resolve(__dirname, '../../'),
@@ -23,14 +22,20 @@ jest.mock('../constants', () => ({
   },
 }));
 
-const filePath = 'test/CHANGELOG.md';
+jest.mock('fs', () => ({
+  promises: {
+    access: jest.fn()
+  },
+  readFileSync: jest.fn(),
+}));
 
-jest.mock('fs');
-const fsSpy = jest.spyOn(fs, 'readFileSync');
+jest.mock('@actions/core', () => ({
+  getInput: jest.fn().mockReturnValue('CHANGELOG.md')
+}));
 
 const getTestReleaseNotes = (notes: TestReleaseNotes) => {
   return `${notes.title}${notes.description}${notes.nextVersion || ''}`;
-}
+};
 
 describe('getReleaseDescription', () => {
   const tests = [{
@@ -70,8 +75,9 @@ describe('getReleaseDescription', () => {
 
   tests.forEach((test) => {
     it(test.title, () => {
-      fsSpy.mockReturnValueOnce(getTestReleaseNotes(test.note));
-      expect(getReleaseDescription(test.note.version, filePath))
+      (fs.readFileSync as jest.Mock)
+        .mockReturnValueOnce(getTestReleaseNotes(test.note));
+      expect(getReleaseDescription(test.note.version))
         .toBe(test.default ? defaultDescription : test.note.description);
     });
   });
