@@ -1,5 +1,5 @@
 name: 'Automatic Create Release'
-description: '🚀 Automatically create release tag based on files updated in commit for JS/TS projects 🏷️'
+description: '🚀 Automatically create release tag based on files updated in a commit for JS/TS projects 🏷️'
 author: 'lr0pb'
 
 branding:
