@@ -18,7 +18,7 @@ Add following entry into your `jobs` list
     - name: Automatic Release Creation
       uses: lr0pb/generate-release@v0.1.0
       with:
-        token: secrets.GITHUB_TOKEN
+        token: ${{ secrets.GITHUB_TOKEN }}
 ```
 
 ## Action inputs and outputs
@@ -43,13 +43,13 @@ on:
     branches: ['main']
 
 jobs:
-  deploy:
+  release:
     runs-on: ubuntu-latest
-  permissions:
-    contents: write
-  steps:
-    - name: Automatic Release Creation
-      uses: lr0pb/generate-release@v0.1.0
-      with:
-        token: secrets.GITHUB_TOKEN
+    permissions:
+      contents: write
+    steps:
+      - name: Automatic Release Creation
+        uses: lr0pb/generate-release@v0.1.0
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
 ```
