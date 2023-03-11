@@ -7,15 +7,13 @@ import { getReleaseDescription } from './getReleaseDescription';
 export async function createRelease(
   version: string
 ): Promise<void> {
+  const notesSource = core.getInput('notes-source', { required: false });
+  const tag = createTagName(version);
+  const body = notesSource === 'changelog'
+  ? getReleaseDescription(version) : undefined;
+
+  const octokit = getOctokit(vars.token);
   try {
-    const notesSource = core.getInput('notes-source', { required: false });
-
-    const tag = createTagName(version);
-    const body = notesSource === 'changelog'
-    ? getReleaseDescription(version) : undefined;
-
-    const octokit = getOctokit(vars.token);
-
     const { data: releaseData } = await octokit.rest.repos.createRelease({
       ...octobase,
       tag_name: tag,
@@ -26,6 +24,7 @@ export async function createRelease(
 
     core.info(`Created release ${releaseData.name} 🏷️`);
   } catch (error) {
+    console.error(error);
     core.setFailed(
       '📝 Set permission `contents: write` to allow Generate Release create releases'
     );
