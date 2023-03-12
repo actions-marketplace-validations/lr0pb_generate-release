@@ -1,6 +1,6 @@
 import { jest, describe, it, expect } from '@jest/globals';
 import fs from 'fs';
-import { defaultDescription, getReleaseDescription } from '../getReleaseDescription';
+import { getDescriptionText } from '../getDescriptionText';
 import { getRepositoryFile } from '../getRepositoryFile';
 import { TestReleaseNotes } from './testReleaseDescriptions/types';
 
@@ -39,7 +39,7 @@ const getTestReleaseNotes = (notes: TestReleaseNotes) => {
   return `${notes.title}${notes.description}${notes.nextVersion || ''}`;
 };
 
-describe('getReleaseDescription', () => {
+describe('getDescriptionText', () => {
   const tests = [{
     title: 'v-prefix w/ version, multiline desc, no lines between title and desc',
     note: notes1,
@@ -58,11 +58,11 @@ describe('getReleaseDescription', () => {
   }, {
     title: 'version not exists in changelog',
     note: notes6,
-    default: true,
+    error: true,
   }, {
     title: 'no description text for version in changelog',
     note: notes7,
-    default: true,
+    error: true,
   }, {
     title: 'test on React 18.0.0 release notes',
     note: react
@@ -72,16 +72,25 @@ describe('getReleaseDescription', () => {
   }] as {
     title: string,
     note: TestReleaseNotes,
-    default?: boolean,
+    error?: boolean,
   }[];
 
   tests.forEach((test) => {
     it(test.title, async () => {
       (getRepositoryFile as jest.Mock<typeof getRepositoryFile>)
         .mockResolvedValueOnce(getTestReleaseNotes(test.note));
-      const data = await getReleaseDescription(test.note.version);
-      expect(data)
-        .toBe(test.default ? defaultDescription : test.note.description);
+      await expect(getDescriptionText(test.note.version))
+        [test.error ? 'rejects' : 'resolves']
+        [test.error ? 'toBeDefined' : 'toBe']
+        (test.error ? undefined : test.note.description);
     });
+  });
+
+  it('reject if no file founded at all', async () => {
+    (getRepositoryFile as jest.Mock<typeof getRepositoryFile>)
+        .mockRejectedValueOnce('No file founded');
+    await expect(getDescriptionText('1.0.0'))
+      .rejects
+      .toMatch('No file founded');
   });
 });

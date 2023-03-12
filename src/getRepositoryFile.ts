@@ -9,7 +9,7 @@ export async function getRepositoryFile(
     ...octobase,
     path: fileName,
     mediaType: {
-      format: 'raw'
+      format: 'raw' // needed to read files up to 100MB size
     }
   });
 

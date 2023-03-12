@@ -2,21 +2,13 @@ import * as core from '@actions/core';
 import { vars } from './constants';
 import { getRepositoryFile } from './getRepositoryFile';
 
-export const defaultDescription = 'No description 💭';
-
-export async function getReleaseDescription(
+export async function getDescriptionText(
   version: string
 ): Promise<string> {
   const changelogPath = core
     .getInput('notes-file', { required: false })
     .replace(/^\//, '');
-  let changelog: string;
-  try {
-    changelog = await getRepositoryFile(changelogPath);
-  } catch (error) {
-    console.error(error);
-    return defaultDescription;
-  }
+  const changelog = await getRepositoryFile(changelogPath);
 
   const findDesc = (descEndRegex: string) => {
     const regex = new RegExp(
@@ -29,9 +21,11 @@ export async function getReleaseDescription(
   const endOfFile = `[\r\n]?$(?![\r\n])`;
 
   let description = findDesc(nextVersion);
-
   if (!description) {
     description = findDesc(endOfFile);
   }
-  return description?.[1].replace(/\n*$/, '') || defaultDescription;
+  if (!description || description?.[1].match(/^\n*$/)) {
+    throw new Error(`🔍 No description for ${version} found`);
+  }
+  return description?.[1].replace(/\n*$/, '');
 }

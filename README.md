@@ -16,22 +16,24 @@ Add following entry into your `jobs` list
     contents: write
   steps:
     - name: Automatic Release Creation
-      uses: lr0pb/generate-release@v0.1.0
+      uses: lr0pb/generate-release@v0.2.0
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
 ```
 
 ## Action inputs and outputs
 ### Inputs
-It work like arguments for function and should set via `with` keyword in your `<step-name>` that use this Action
+Inputs are like arguments for functions and must be set by the `with` keyword in your `<step-name>` that uses this Action
 
-| Name | Description | Required /<br />Default value |
-| --- | --- | --- |
-| `token` | Your `GITHUB_TOKEN` to provide access to GitHub REST API | ❗Required |
-| `track-file` | Path to file used to track updates: some `package.json` file | ✅Optional<br />`package.json` |
-| `notes-source` | Source type for release notes: `changelog` / `auto` | ✅Optional<br />`changelog` |
-| `notes-file` | Path to changelog file used to provide release descriptions | ✅Optional<br />`CHANGELOG.md` |
-| `tag-pattern` | Custom tag pattern for release title | ✅Optional<br />`v{major}.{minor}.{patch}` |
+| Name | Description | Required? | Default value |
+| --- | --- | --- | --- |
+| `token` | Your `GITHUB_TOKEN` to provide access to GitHub REST API | ❗ Yes |
+| `track-file` | Path to file used to track updates:<br />`package.json` file in whatever directory | ✅ No | `package.json` |
+| `notes-source` | Source type for release notes:<br />`changelog` \| `auto` | ✅ No | `changelog` |
+| `notes-file` | Path to changelog file used to provide release descriptions | ✅ No | `CHANGELOG.md` |
+| `notes-fallback` | Fallback for release notes when no changelog file founded or when no description in this file for the new version:<br />`fallbackText` \| `auto` | ✅ No | `fallbackText`<br />`fallback-text` input value |
+| `fallback-text` | Text used for `fallbackText` release notes fallback | ✅ No | "*No description 💭*" |
+| `tag-pattern` | Custom tag pattern for release title | ✅ No | `v{major}.{minor}.{patch}` |
 
 ## Ready-to-use workflow file
 Full workflow file template for your automatic release creation process:
@@ -49,7 +51,7 @@ jobs:
       contents: write
     steps:
       - name: Automatic Release Creation
-        uses: lr0pb/generate-release@v0.1.0
+        uses: lr0pb/generate-release@v0.2.0
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 ```

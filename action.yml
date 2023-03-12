@@ -22,6 +22,14 @@ inputs:
     description: 'Path to changelog file used to provide release descriptions'
     required: false
     default: 'CHANGELOG.md'
+  notes-fallback:
+    description: 'Fallback for release notes when no changelog file founded or when no description in this file for the new version: fallbackText | auto'
+    required: false
+    default: 'fallbackText'
+  fallback-text:
+    description: 'Text used for `fallbackText` release notes fallback'
+    required: false
+    default: 'No description 💭'
   tag-pattern:
     description: 'Custom tag pattern for release title'
     required: false
