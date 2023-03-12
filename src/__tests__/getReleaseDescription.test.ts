@@ -1,7 +1,7 @@
 import { jest, describe, it, expect } from '@jest/globals';
 import fs from 'fs';
-import path from 'path';
 import { defaultDescription, getReleaseDescription } from '../getReleaseDescription';
+import { getRepositoryFile } from '../getRepositoryFile';
 import { TestReleaseNotes } from './testReleaseDescriptions/types';
 
 import notes1 from './testReleaseDescriptions/1-prefix-no-lines';
@@ -17,7 +17,6 @@ import capacitor from './testReleaseDescriptions/capacitor';
 
 jest.mock('../constants', () => ({
   vars: {
-    basePath: path.resolve(__dirname, '../../'),
     versionRegex: `\\d+\\.\\d+\\.\\d+`,
   },
 }));
@@ -25,12 +24,15 @@ jest.mock('../constants', () => ({
 jest.mock('fs', () => ({
   promises: {
     access: jest.fn()
-  },
-  readFileSync: jest.fn(),
+  }
 }));
 
 jest.mock('@actions/core', () => ({
   getInput: jest.fn().mockReturnValue('CHANGELOG.md')
+}));
+
+jest.mock('../getRepositoryFile', () => ({
+  getRepositoryFile: jest.fn<typeof getRepositoryFile>()
 }));
 
 const getTestReleaseNotes = (notes: TestReleaseNotes) => {
@@ -74,10 +76,11 @@ describe('getReleaseDescription', () => {
   }[];
 
   tests.forEach((test) => {
-    it(test.title, () => {
-      (fs.readFileSync as jest.Mock)
-        .mockReturnValueOnce(getTestReleaseNotes(test.note));
-      expect(getReleaseDescription(test.note.version))
+    it(test.title, async () => {
+      (getRepositoryFile as jest.Mock<typeof getRepositoryFile>)
+        .mockResolvedValueOnce(getTestReleaseNotes(test.note));
+      const data = await getReleaseDescription(test.note.version);
+      expect(data)
         .toBe(test.default ? defaultDescription : test.note.description);
     });
   });

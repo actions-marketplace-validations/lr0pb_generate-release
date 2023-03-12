@@ -1,19 +1,22 @@
 import * as core from '@actions/core';
-import * as fs from 'fs';
-import * as path from 'path';
 import { vars } from './constants';
+import { getRepositoryFile } from './getRepositoryFile';
 
 export const defaultDescription = 'No description 💭';
 
-export function getReleaseDescription(
+export async function getReleaseDescription(
   version: string
-): string {
+): Promise<string> {
   const changelogPath = core
     .getInput('notes-file', { required: false })
     .replace(/^\//, '');
-  const changelog = fs.readFileSync(
-    path.join(vars.basePath, changelogPath), 'utf8'
-  );
+  let changelog: string;
+  try {
+    changelog = await getRepositoryFile(changelogPath);
+  } catch (error) {
+    console.error(error);
+    return defaultDescription;
+  }
 
   const findDesc = (descEndRegex: string) => {
     const regex = new RegExp(

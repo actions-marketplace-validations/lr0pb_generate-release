@@ -10,9 +10,9 @@ export async function createRelease(
   const notesSource = core.getInput('notes-source', { required: false });
   const tag = createTagName(version);
   const body = notesSource === 'changelog'
-  ? getReleaseDescription(version) : undefined;
-
+  ? await getReleaseDescription(version) : undefined;
   const octokit = getOctokit(vars.token);
+
   try {
     const { data: releaseData } = await octokit.rest.repos.createRelease({
       ...octobase,
