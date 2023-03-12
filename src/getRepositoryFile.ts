@@ -12,11 +12,9 @@ export async function getRepositoryFile(
       format: 'raw'
     }
   });
-  console.log(data);
-  
-  if ('content' in data) {
-    const content = data.content;//Buffer.from(data.content, 'base64').toString('utf8');
-    return content;
+
+  if (!!data) {
+    return data as unknown as string;
   } else {
     throw new Error(`📖 Failed to read file: ${fileName}`);
   }
